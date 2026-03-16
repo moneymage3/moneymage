@@ -1,0 +1,288 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Sparkles,
+  Moon,
+  Sun,
+  Rocket,
+  Heart,
+  Download,
+  ChevronRight,
+  Wallet
+} from 'lucide-react';
+
+// SEO Feature 1-8: Dynamic Meta Tags, Canonical URLs, and Open Graph Tags Injection
+const setupSEO = () => {
+  const metaTags = [
+    { name: 'description', content: 'Master your personal finances with Money Mage. The ultimate expense tracker and budgeting app to summon total financial control.' },
+    { name: 'keywords', content: 'personal finance, budget tracker, expense manager, money management, wealth building app' },
+    { name: 'robots', content: 'index, follow' },
+    { name: 'theme-color', content: '#4f46e5' },
+    { property: 'og:title', content: 'Money Mage | Advanced Personal Finance Tracker' },
+    { property: 'og:description', content: 'Track effortlessly, analyze magically, and build the wealth you deserve.' },
+    { property: 'og:type', content: 'website' },
+    { name: 'twitter:card', content: 'summary_large_image' }
+  ];
+
+  document.title = "Money Mage | Advanced Personal Finance Tracker";
+
+  // Inject Meta Tags
+  metaTags.forEach(tag => {
+    let element = document.querySelector(`meta[name="${tag.name}"]`) || document.querySelector(`meta[property="${tag.property}"]`);
+    if (!element) {
+      element = document.createElement('meta');
+      if (tag.name) element.setAttribute('name', tag.name);
+      if (tag.property) element.setAttribute('property', tag.property);
+      document.head.appendChild(element);
+    }
+    element.setAttribute('content', tag.content);
+  });
+
+  // SEO Feature 9: Canonical URL
+  let canonical = document.querySelector('link[rel="canonical"]');
+  if (!canonical) {
+    canonical = document.createElement('link');
+    canonical.setAttribute('rel', 'canonical');
+    canonical.setAttribute('href', window.location.href);
+    document.head.appendChild(canonical);
+  }
+};
+
+// Custom CSS with Performance Optimizations
+const CustomStyles = () => (
+  <style dangerouslySetInnerHTML={{__html: `
+    /* SEO Feature 10: Performance optimizations via hardware acceleration reduces bounce rate */
+    @keyframes gradient-x {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translate3d(0px, 0px, 0) scale(1); }
+      50% { transform: translate3d(0px, -15px, 0) scale(1.02); }
+    }
+    @keyframes float-delayed {
+      0%, 100% { transform: translate3d(0px, 0px, 0) scale(1); }
+      50% { transform: translate3d(0px, 15px, 0) scale(0.98); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.4; filter: blur(40px); }
+      50% { opacity: 0.7; filter: blur(60px); }
+    }
+    
+    .animate-gradient-x {
+      background-size: 200% 200%;
+      animation: gradient-x 4s ease infinite;
+      will-change: background-position;
+    }
+    /* Hardware acceleration added to prevent mobile lag */
+    .animate-float {
+      animation: float 6s ease-in-out infinite;
+      will-change: transform;
+    }
+    .animate-float-delayed {
+      animation: float-delayed 8s ease-in-out infinite;
+      will-change: transform;
+    }
+    .animate-pulse-glow {
+      animation: pulse-glow 5s ease-in-out infinite;
+      will-change: opacity, filter;
+    }
+    
+    .bg-grid-pattern {
+      background-image: linear-gradient(to right, rgba(128, 128, 128, 0.1) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(128, 128, 128, 0.1) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .dark .bg-grid-pattern {
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    }
+
+    /* PC specific glow enhancements (disabled on mobile to save GPU processing) */
+    @media (min-width: 768px) {
+      .animate-pulse-glow {
+        animation: pulse-glow-pc 6s ease-in-out infinite;
+      }
+      @keyframes pulse-glow-pc {
+        0%, 100% { opacity: 0.5; filter: blur(80px); }
+        50% { opacity: 0.8; filter: blur(120px); }
+      }
+    }
+  `}} />
+);
+
+// SEO Feature 11: Schema.org JSON-LD Structured Data
+const StructuredData = () => (
+  <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Money Mage",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web, iOS, Android",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "Master your money, track income and expenses, and build wealth with advanced financial clarity."
+  })}} />
+);
+
+// Replaced Image Logo with pure text/icon logo for 0 lag and instant load
+const Logo = () => (
+  // SEO Feature 12: Title attributes on links/wrappers
+  <div className="flex items-center gap-2 sm:gap-3 group cursor-pointer" title="Money Mage - Home">
+    <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 shadow-lg text-white transition-transform duration-500 group-hover:scale-105 group-hover:rotate-3">
+      <Wallet size={24} className="sm:w-7 sm:h-7" />
+    </div>
+    {/* SEO Feature 13: Keyword rich brand styling */}
+    <span className="text-xl sm:text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 via-violet-600 to-fuchsia-600 dark:from-indigo-300 dark:via-violet-300 dark:to-fuchsia-300">
+      Money Mage
+    </span>
+  </div>
+);
+
+const Navbar = ({ isDarkMode, setIsDarkMode }) => {
+  return (
+    // SEO Feature 14: Semantic <nav> tag
+    // SEO Feature 15: Reduced backdrop-blur on mobile for smoother scroll
+    <nav className="fixed w-full z-50 top-0 transition-all duration-300 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md md:backdrop-blur-2xl border-b border-white/20 dark:border-slate-800/40 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-20 sm:h-24">
+          <Logo />
+          
+          <button 
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            // SEO Feature 16: aria-label for accessibility (Accessibility directly impacts SEO rankings)
+            // SEO Feature 17: Min 44px tap target height for mobile friendliness
+            className="relative flex items-center justify-center w-12 h-12 rounded-full bg-white/50 dark:bg-slate-800/50 text-slate-700 dark:text-amber-300 hover:bg-white dark:hover:bg-slate-700 transition-all duration-300 shadow-sm border border-slate-200/50 dark:border-slate-700 active:scale-95"
+            aria-label={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            title="Toggle Theme"
+          >
+            {isDarkMode ? <Sun size={22} /> : <Moon size={22} className="text-indigo-600" />}
+          </button>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+const Hero = () => {
+  return (
+    // SEO Feature 18: Semantic <main> wrapping core content
+    <main className="relative z-10 pt-28 pb-16 sm:pt-32 sm:pb-20 px-4 flex flex-col items-center justify-center min-h-screen">
+      <div className="max-w-5xl mx-auto text-center flex flex-col items-center w-full">
+        
+        {/* Animated Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 sm:px-6 sm:py-2 rounded-full bg-white/40 dark:bg-slate-800/40 text-violet-800 dark:text-violet-200 font-bold text-xs sm:text-sm mb-8 sm:mb-10 border border-white/60 dark:border-slate-700/60 backdrop-blur-xl shadow-lg shadow-violet-500/10 dark:shadow-violet-500/20">
+          <Sparkles size={16} className="animate-pulse text-fuchsia-500 dark:text-fuchsia-400" />
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-700 to-fuchsia-700 dark:from-violet-300 dark:to-fuchsia-300 tracking-wide">
+            THE MAGIC OF FINANCIAL CLARITY
+          </span>
+        </div>
+        
+        {/* SEO Feature 19: Strict single <h1> per page for proper heading hierarchy */}
+        <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-6 sm:mb-8 text-slate-900 dark:text-white leading-[1.1] sm:leading-[1.05] drop-shadow-sm">
+          Master Your Money <br />
+          <span className="relative inline-block mt-1 sm:mt-2">
+            <span className="absolute -inset-1 sm:-inset-2 bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500 blur-lg sm:blur-2xl opacity-20 dark:opacity-40 animate-pulse-glow rounded-full"></span>
+            <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 dark:from-indigo-400 dark:via-violet-400 dark:to-fuchsia-400 animate-gradient-x">
+              Like a Mage
+            </span>
+          </span>
+        </h1>
+        
+        {/* Description - Adjusted width for mobile readability */}
+        <p className="text-lg sm:text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-10 sm:mb-14 max-w-[90%] sm:max-w-2xl mx-auto leading-relaxed font-medium">
+          Summon total control over your monthly income and expenses. Track effortlessly, analyze magically, and build the wealth you deserve.
+        </p>
+        
+        {/* Buttons Layout - Stacked on mobile, row on PC */}
+        <div className="flex flex-col items-center w-full max-w-sm sm:max-w-3xl gap-4 sm:gap-6 z-20">
+          
+          {/* Main Primary CTA */}
+          <a 
+            href="service.html" 
+            title="Start Managing Money Dashboard"
+            aria-label="Start Managing Money Dashboard"
+            // SEO Feature 20: Optimal tap targets & text contrast ratios
+            className="group relative w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-4 sm:px-10 sm:py-5 rounded-full font-black text-lg sm:text-xl text-white transition-all duration-300 transform hover:-translate-y-1 sm:hover:-translate-y-2 hover:scale-[1.02]"
+          >
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500 blur-sm sm:blur-md opacity-80 group-hover:opacity-100 group-hover:blur-xl transition-all duration-500"></div>
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 animate-gradient-x border border-white/20"></div>
+            
+            <Rocket size={24} className="relative z-10 group-hover:animate-bounce drop-shadow-md" />
+            <span className="relative z-10 drop-shadow-md tracking-wide">Start Managing Money</span>
+            <ChevronRight size={24} className="relative z-10 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all hidden sm:block" />
+          </a>
+
+          {/* Secondary Actions */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
+            
+            <a 
+              href="support.html" 
+              title="Support the developers"
+              aria-label="Support the developers"
+              className="group relative flex items-center justify-center gap-3 px-6 py-3.5 sm:px-8 sm:py-4 rounded-full font-bold text-slate-700 dark:text-slate-200 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 shadow-sm hover:bg-white dark:hover:bg-slate-700 transition-all duration-300 transform hover:-translate-y-1 w-full sm:w-auto min-h-[48px]"
+            >
+              <Heart size={20} className="text-pink-500 group-hover:scale-125 transition-transform duration-300" />
+              <span>Support Us</span>
+            </a>
+
+            <button 
+              title="Install Web App"
+              aria-label="Install Web App"
+              className="group relative flex items-center justify-center gap-3 px-6 py-3.5 sm:px-8 sm:py-4 rounded-full font-bold text-slate-700 dark:text-slate-200 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 shadow-sm hover:bg-white dark:hover:bg-slate-700 transition-all duration-300 transform hover:-translate-y-1 w-full sm:w-auto min-h-[48px]"
+            >
+              <Download size={20} className="text-indigo-500 dark:text-indigo-400 group-hover:translate-y-1 transition-transform duration-300" />
+              <span>Install App</span>
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+    </main>
+  );
+};
+
+export default function App() {
+  const [isDarkMode, setIsDarkMode] = useState(true);
+
+  // Initialize SEO on mount
+  useEffect(() => {
+    setupSEO();
+  }, []);
+
+  return (
+    <div className={isDarkMode ? 'dark' : ''}>
+      <CustomStyles />
+      <StructuredData />
+      
+      <div className="min-h-screen transition-colors duration-500 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white overflow-hidden relative font-sans selection:bg-fuchsia-500/30 dark:selection:bg-fuchsia-500/40 flex flex-col">
+        
+        {/* Background Grid Pattern */}
+        <div className="absolute inset-0 bg-grid-pattern z-0 opacity-40 dark:opacity-20"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-50 dark:to-slate-950 z-0"></div>
+
+        {/* Magical Floating Glowing Orbs (Optimized for performance) */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 flex items-center justify-center">
+          {/* Top Left Orb */}
+          <div className="absolute top-[5%] left-[5%] w-[60vw] h-[60vw] max-w-[400px] max-h-[400px] bg-violet-500/15 dark:bg-violet-600/15 rounded-full filter blur-2xl md:blur-[80px] animate-float" style={{ transform: 'translateZ(0)' }}></div>
+          
+          {/* Top Right Orb */}
+          <div className="absolute top-[15%] right-[-5%] w-[50vw] h-[50vw] max-w-[350px] max-h-[350px] bg-fuchsia-500/15 dark:bg-fuchsia-600/15 rounded-full filter blur-2xl md:blur-[70px] animate-float-delayed" style={{ transform: 'translateZ(0)' }}></div>
+          
+          {/* Bottom Center Orb */}
+          <div className="absolute bottom-[-5%] left-[20%] w-[70vw] h-[70vw] max-w-[600px] max-h-[600px] bg-indigo-500/15 dark:bg-indigo-600/15 rounded-full filter blur-3xl md:blur-[100px] animate-pulse-glow" style={{ transform: 'translateZ(0)' }}></div>
+        </div>
+        
+        <Navbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+        
+        <div className="flex-grow flex items-center justify-center">
+          <Hero />
+        </div>
+        
+      </div>
+    </div>
+  );
+}
