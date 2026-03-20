@@ -446,5 +446,11 @@ function closePopup() {
   document.getElementById("iosPopup").style.display = "none";
 }
 </script>
+  <script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker.js")
+    .then(() => console.log("Service Worker Registered"));
+}
+</script>
 </body>
 </html>
