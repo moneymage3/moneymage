@@ -56,6 +56,38 @@ window.location.href = "maintenance.html";
 
   <!-- Custom CSS with Performance Optimizations -->
   <style>
+    #iosPopup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-box {
+  background: #020617;
+  color: white;
+  padding: 20px;
+  border-radius: 16px;
+  width: 80%;
+  max-width: 300px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.popup-box button {
+  margin-top: 15px;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: #6366f1;
+  color: white;
+  cursor: pointer;
+}
     /* SEO Feature 10: Performance optimizations via hardware acceleration reduces bounce rate */
     @keyframes gradient-x {
       0%, 100% { background-position: 0% 50%; }
@@ -350,6 +382,45 @@ document.getElementById("installBtn").addEventListener("click", async () => {
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("service-worker.js")
   .then(() => console.log("Service Worker Registered"));
+}
+</script>
+  <script>
+const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+</script>
+  <div id="iosPopup" style="display:none;">
+  <div class="popup-box">
+    <h3>Install Money Mage</h3>
+    <p>1. Tap Share button 📤</p>
+    <p>2. Scroll down</p>
+    <p>3. Tap "Add to Home Screen"</p>
+    <p>4. Tap "Add"</p>
+    <button onclick="closePopup()">Got it</button>
+  </div>
+</div>
+  <script>
+let deferredPrompt;
+const installBtn = document.getElementById("installBtn");
+const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+installBtn.addEventListener("click", () => {
+  if (isIOS) {
+    document.getElementById("iosPopup").style.display = "flex";
+  } else {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+    } else {
+      alert("Install not available yet. Try using Chrome.");
+    }
+  }
+});
+
+function closePopup() {
+  document.getElementById("iosPopup").style.display = "none";
 }
 </script>
 </body>
