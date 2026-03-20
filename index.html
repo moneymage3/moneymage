@@ -1,11 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-  <script>
-if(localStorage.getItem("maintenance") === "on"){
-window.location.href = "maintenance.html";
-}
-</script>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#6366f1">
   <meta charset="UTF-8">
@@ -21,6 +16,11 @@ window.location.href = "maintenance.html";
   <meta property="og:description" content="Track effortlessly, analyze magically, and build the wealth you deserve.">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Money Mage">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="canonical" href="https://yourwebsite.com/">
 
   <!-- SEO Feature 11: Schema.org JSON-LD Structured Data -->
@@ -186,6 +186,13 @@ window.location.href = "maintenance.html";
         50% { opacity: 0.8; filter: blur(120px); }
       }
     }
+    body {
+  user-select: none;
+  -webkit-user-select: none;
+}
+    button {
+  -webkit-tap-highlight-color: transparent;
+}
   </style>
 </head>
 
