@@ -1,48 +1,26 @@
-const CACHE_NAME = "money-mage-v2";
+const CACHE_NAME = "money-mage-v1";
 
 const urlsToCache = [
   "/",
-  "index.html",
-  "service.html",
-  "support.html",
-  "maintenance.html",
-  "manifest.json"
+  "/index.html",
+  "/icon-192.png",
+  "/icon-512.png"
 ];
 
-self.addEventListener("install", event => {
+// Install
+self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(urlsToCache);
+    })
   );
 });
 
-self.addEventListener("fetch", event => {
-
+// Fetch
+self.addEventListener("fetch", (event) => {
   event.respondWith(
-
-    caches.match(event.request)
-      .then(response => {
-
-        if (response) {
-          return response;
-        }
-
-        return fetch(event.request)
-          .then(networkResponse => {
-
-            return caches.open(CACHE_NAME)
-              .then(cache => {
-
-                cache.put(event.request, networkResponse.clone());
-
-                return networkResponse;
-
-              });
-
-          });
-
-      })
-
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
+    })
   );
-
 });
