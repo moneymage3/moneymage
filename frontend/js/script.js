@@ -1,3 +1,4 @@
+console.log("JS Loaded ✅");
 document.getElementById("feedback-form").addEventListener("submit", async function(e) {
     e.preventDefault();
 
