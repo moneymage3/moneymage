@@ -7,7 +7,7 @@ document.querySelector("form").addEventListener("submit", async function(e) {
     const message = document.getElementById("input-message").value;
 
     try {
-        const res = await fetch("http://localhost:5000/feedback", {
+        const res = await fetch("https://moneymage.onrender.com/feedback", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
