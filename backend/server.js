@@ -17,6 +17,8 @@ app.get("/", (req, res) => {
    res.send("Money Mage Backend is Running 🚀");
 });
 app.post("/feedback", async (req, res) => {
+    console.log("Data received:", req.body); // 🔥 ADD THIS
+
     try {
         const { name, email, topic, message } = req.body;
 
@@ -31,11 +33,14 @@ app.post("/feedback", async (req, res) => {
 
         res.status(200).json({ message: "Feedback saved ✅" });
     } catch (error) {
+        console.log(error); // 🔥 ALSO ADD
         res.status(500).json({ error: error.message });
     }
-});
+});;
 
 // Start server
-app.listen(5000, () => {
-    console.log("Server running on port 5000");
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+    console.log("Server running on port " + PORT);
 });
