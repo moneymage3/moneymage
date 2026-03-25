@@ -1,4 +1,4 @@
-document.querySelector("form").addEventListener("submit", async function(e) {
+document.getElementById("feedback-form").addEventListener("submit", async function(e) {
     e.preventDefault();
 
     const name = document.getElementById("input-name").value;
@@ -7,7 +7,7 @@ document.querySelector("form").addEventListener("submit", async function(e) {
     const message = document.getElementById("input-message").value;
 
     try {
-        const res = await fetch("https://moneymage.onrender.com/feedback", {
+        const res = await fetch("https://moneymage.onrender.com", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
