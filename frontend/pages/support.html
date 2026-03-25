@@ -38,33 +38,42 @@
         .animate-drift-2 { animation: drift 22s infinite ease-in-out reverse; }
         .animate-drift-3 { animation: drift 20s infinite ease-in-out 3s; }
         
-        /* Mobile Input Optimization */
+        /* Mobile Input Optimization & Performance */
         @media (max-width: 768px) {
             input, select, textarea {
-                font-size: 16px !important;
+                font-size: 16px !important; /* Prevents iOS auto-zoom */
             }
             .touch-target {
                 min-height: 44px;
             }
+        }
+
+        .hardware-accelerated {
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            will-change: transform;
+        }
+        .smooth-scroll {
+            -webkit-overflow-scrolling: touch;
         }
     </style>
 </head>
 <body class="text-slate-100 flex flex-col relative overflow-x-hidden selection:bg-fuchsia-500/30 selection:text-white min-h-screen">
 
     <!-- --- DYNAMIC BACKGROUND --- -->
-    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none hardware-accelerated">
         <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,#0e062e_0%,#03010b_80%)]"></div>
-        <div class="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-cyan-600/10 blur-[120px] animate-drift-1 mix-blend-screen"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-fuchsia-700/10 blur-[150px] animate-drift-2 mix-blend-screen"></div>
-        <div class="absolute top-[20%] left-[40%] w-[40vw] h-[40vw] rounded-full bg-purple-600/10 blur-[100px] animate-drift-3 mix-blend-screen"></div>
+        <div class="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-cyan-600/10 blur-[120px] animate-drift-1 mix-blend-screen transform-gpu"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-fuchsia-700/10 blur-[150px] animate-drift-2 mix-blend-screen transform-gpu"></div>
+        <div class="absolute top-[20%] left-[40%] w-[40vw] h-[40vw] rounded-full bg-purple-600/10 blur-[100px] animate-drift-3 mix-blend-screen transform-gpu"></div>
         <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LCAyNTUsIDI1NSwgMC4wNCkiLz48L3N2Zz4=')] [mask-image:radial-gradient(ellipse_at_center,white_10%,transparent_80%)] opacity-80"></div>
     </div>
 
     <!-- --- NAVIGATION --- -->
     <nav class="w-full relative z-20 border-b border-white/5 bg-slate-950/30 backdrop-blur-xl sticky top-0">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-            <a href="/" class="flex items-center gap-2 group hover:opacity-80 transition-opacity touch-target">
-                <i data-lucide="arrow-left" class="w-5 h-5 text-slate-400 group-hover:-translate-x-1 transition-transform"></i>
+            <a href="index.html" class="flex items-center gap-2 group hover:opacity-80 transition-opacity touch-target">
+                <i data-lucide="arrow-left" class="w-5 h-5 text-slate-400 group-hover:-translate-x-1 transition-transform transform-gpu"></i>
                 <span class="text-sm font-medium text-slate-300 hidden sm:inline">Back Home</span>
             </a>
             <div class="flex items-center gap-2">
@@ -81,7 +90,7 @@
     <main class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-16 relative z-10 flex flex-col gap-8 sm:gap-10">
         
         <!-- Header -->
-        <div class="text-center max-w-2xl mx-auto">
+        <div class="text-center max-w-2xl mx-auto hardware-accelerated">
             <div class="inline-flex items-center justify-center p-3 bg-fuchsia-500/10 border border-fuchsia-500/20 rounded-2xl mb-4 sm:mb-6 shadow-[0_0_30px_rgba(217,70,239,0.15)]">
                 <i data-lucide="heart" class="w-6 h-6 sm:w-8 sm:h-8 text-fuchsia-400"></i>
             </div>
@@ -94,9 +103,9 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 mt-2 sm:mt-4">
             
             <!-- LEFT: DONATION CARD -->
-            <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-3xl lg:rounded-[2.5rem] p-5 sm:p-8 lg:p-10 shadow-2xl relative overflow-hidden group flex flex-col">
+            <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-3xl lg:rounded-[2.5rem] p-5 sm:p-8 lg:p-10 shadow-2xl relative overflow-hidden group flex flex-col hardware-accelerated">
                 <!-- Decorative glow -->
-                <div class="absolute top-0 right-0 w-64 h-64 bg-fuchsia-600/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+                <div class="absolute top-0 right-0 w-64 h-64 bg-fuchsia-600/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none transform-gpu"></div>
                 
                 <h2 class="text-xl sm:text-2xl font-bold text-white mb-2 flex items-center gap-2">
                     <i data-lucide="coffee" class="text-fuchsia-400 w-5 h-5 sm:w-6 sm:h-6"></i>
@@ -113,8 +122,8 @@
                     <div class="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 w-6 h-6 border-b-2 border-l-2 border-fuchsia-500/50 rounded-bl-lg"></div>
                     <div class="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 w-6 h-6 border-b-2 border-r-2 border-fuchsia-500/50 rounded-br-lg"></div>
 
-                    <!-- Beautifully stylized QR Code placeholder via API -->
-                    <div class="bg-white p-2.5 sm:p-3 rounded-xl shadow-[0_0_40px_rgba(217,70,239,0.3)] mb-4 sm:mb-6 transition-transform duration-500 hover:scale-105">
+                    <!-- Beautifully stylized QR Code placeholder -->
+                    <div class="bg-white p-2.5 sm:p-3 rounded-xl shadow-[0_0_40px_rgba(217,70,239,0.3)] mb-4 sm:mb-6 transition-transform duration-500 hover:scale-105 transform-gpu">
                         <img src="https://lh3.googleusercontent.com/p/AF1QipO-K-wZ9PnvHBjDX8l8y_LIlVJUUtVUt57XFLik=s1360-w1360-h1020-rw" alt="Donation QR Code" class="w-40 h-40 sm:w-48 sm:h-48 rounded-lg object-cover" />
                     </div>
 
@@ -124,16 +133,16 @@
             </div>
 
             <!-- RIGHT: FEEDBACK FORM -->
-            <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-3xl lg:rounded-[2.5rem] p-5 sm:p-8 lg:p-10 shadow-2xl relative overflow-hidden flex flex-col">
+            <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-3xl lg:rounded-[2.5rem] p-5 sm:p-8 lg:p-10 shadow-2xl relative overflow-hidden flex flex-col hardware-accelerated">
                 <!-- Decorative glow -->
-                <div class="absolute bottom-0 left-0 w-64 h-64 bg-cyan-600/10 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-64 h-64 bg-cyan-600/10 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2 pointer-events-none transform-gpu"></div>
 
                 <h2 class="text-xl sm:text-2xl font-bold text-white mb-2 flex items-center gap-2">
                     <i data-lucide="message-square" class="text-cyan-400 w-5 h-5 sm:w-6 sm:h-6"></i>
                     Send a Message via Owl
                 </h2>
                 <p class="text-slate-400 text-sm sm:text-base font-light mb-6 sm:mb-8">
-                    Found a bug? Have a feature request? Or just want to say hi? We'd love to hear from you!
+                    Found a bug? Have a feature request? Or just want to say hi? We'd love to hear from you! Your draft will be auto-saved.
                 </p>
 
                 <form id="feedback-form" class="space-y-4 sm:space-y-5 flex-1 flex flex-col">
@@ -144,16 +153,16 @@
                             <label class="block text-sm text-slate-400 mb-1.5 ml-1">Your Name</label>
                             <div class="relative">
                                 <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
-                                <input type="text" required placeholder="Gandalf" class="touch-target w-full bg-slate-950/50 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-cyan-500 transition-colors placeholder:text-slate-600">
+                                <input type="text" id="input-name" required placeholder="Gandalf" class="touch-target w-full bg-slate-950/50 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-cyan-500 transition-colors placeholder:text-slate-600">
                             </div>
                         </div>
 
                         <!-- Email -->
                         <div>
-                            <label class="block text-sm text-slate-400 mb-1.5 ml-1">Email Address <span class="text-slate-600 text-xs">(Optional)</span></label>
+                            <label class="block text-sm text-slate-400 mb-1.5 ml-1">Email <span class="text-slate-600 text-xs">(Optional)</span></label>
                             <div class="relative">
                                 <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
-                                <input type="email" placeholder="wizard@magic.com" class="touch-target w-full bg-slate-950/50 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-cyan-500 transition-colors placeholder:text-slate-600">
+                                <input type="email" id="input-email" placeholder="wizard@magic.com" class="touch-target w-full bg-slate-950/50 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-cyan-500 transition-colors placeholder:text-slate-600">
                             </div>
                         </div>
                     </div>
@@ -163,7 +172,7 @@
                         <label class="block text-sm text-slate-400 mb-1.5 ml-1">Topic</label>
                         <div class="relative">
                             <i data-lucide="tag" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
-                            <select class="touch-target w-full bg-slate-950/50 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-cyan-500 transition-colors appearance-none cursor-pointer">
+                            <select id="input-topic" class="touch-target w-full bg-slate-950/50 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-cyan-500 transition-colors appearance-none cursor-pointer">
                                 <option class="bg-slate-900 text-white" value="feedback">General Feedback</option>
                                 <option class="bg-slate-900 text-white" value="feature">Feature Request</option>
                                 <option class="bg-slate-900 text-white" value="bug">Report a Bug</option>
@@ -176,23 +185,23 @@
                     <!-- Message -->
                     <div class="flex-1 flex flex-col">
                         <label class="block text-sm text-slate-400 mb-1.5 ml-1">Your Message</label>
-                        <textarea required rows="4" placeholder="This dashboard is pure magic! However, I would love to see..." class="flex-1 w-full bg-slate-950/50 border border-slate-800 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-cyan-500 transition-colors resize-none placeholder:text-slate-600 custom-scroll min-h-[100px]"></textarea>
+                        <textarea id="input-message" required rows="4" placeholder="This dashboard is pure magic! However, I would love to see..." class="flex-1 w-full bg-slate-950/50 border border-slate-800 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-cyan-500 transition-colors resize-none placeholder:text-slate-600 custom-scroll smooth-scroll min-h-[100px]"></textarea>
                     </div>
 
-                    <button type="submit" id="submit-btn" class="touch-target w-full py-3.5 sm:py-4 px-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20 transition-all active:scale-95 flex items-center justify-center gap-2 text-base">
+                    <button type="submit" id="submit-btn" class="touch-target w-full py-3.5 sm:py-4 px-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20 transition-all active:scale-95 flex items-center justify-center gap-2 text-base transform-gpu">
                         <i data-lucide="send" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                         Send via Owl
                     </button>
                 </form>
 
                 <!-- Success Message (Hidden by default) -->
-                <div id="success-message" class="hidden absolute inset-0 bg-slate-900/95 backdrop-blur-md z-10 flex flex-col items-center justify-center text-center p-6 sm:p-8 rounded-3xl lg:rounded-[2.5rem] border border-emerald-500/30">
+                <div id="success-message" class="hidden absolute inset-0 bg-slate-900/95 backdrop-blur-md z-10 flex flex-col items-center justify-center text-center p-6 sm:p-8 rounded-3xl lg:rounded-[2.5rem] border border-emerald-500/30 transform-gpu">
                     <div class="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mb-4 sm:mb-6 animate-[pulse_2s_infinite]">
                         <i data-lucide="check-circle" class="w-8 h-8 sm:w-10 sm:h-10 text-emerald-400"></i>
                     </div>
                     <h3 class="text-xl sm:text-2xl font-bold text-white mb-2">Message Sent!</h3>
                     <p class="text-sm sm:text-base text-slate-400">Thank you for your feedback. Our magical owls will deliver it shortly.</p>
-                    <button onclick="resetForm()" class="mt-6 sm:mt-8 px-6 py-3 border border-slate-700 hover:border-slate-500 hover:bg-white/5 rounded-xl text-white transition-all font-medium text-sm sm:text-base">
+                    <button onclick="resetForm()" class="touch-target mt-6 sm:mt-8 px-6 py-3 border border-slate-700 hover:border-slate-500 hover:bg-white/5 rounded-xl text-white transition-all font-medium text-sm sm:text-base">
                         Send Another
                     </button>
                 </div>
@@ -203,7 +212,7 @@
     </main>
 
     <!-- --- FOOTER --- -->
-    <footer class="relative z-10 border-t border-white/5 bg-slate-950/50 backdrop-blur-xl py-6 sm:py-8 mt-8 sm:mt-12">
+    <footer class="relative z-10 border-t border-white/5 bg-slate-950/50 backdrop-blur-xl py-6 sm:py-8 mt-8 sm:mt-12 hardware-accelerated">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center gap-4">
             <div class="flex items-center gap-2 opacity-50">
                 <i data-lucide="wand-2" class="w-4 h-4 text-fuchsia-400"></i>
@@ -215,33 +224,77 @@
 
     <!-- --- JAVASCRIPT LOGIC --- -->
     <script>
-        // Initialize Icons
-        lucide.createIcons();
-
-        // Form Submission Simulation
+        // DOM Elements
+        const draftName = document.getElementById('input-name');
+        const draftEmail = document.getElementById('input-email');
+        const draftTopic = document.getElementById('input-topic');
+        const draftMessage = document.getElementById('input-message');
         const form = document.getElementById('feedback-form');
         const successMsg = document.getElementById('success-message');
 
+        // --- Local Storage Auto-Save Logic ---
+        function saveDraft() {
+            const draft = {
+                name: draftName.value,
+                email: draftEmail.value,
+                topic: draftTopic.value,
+                message: draftMessage.value
+            };
+            localStorage.setItem('moneyMage_support_draft', JSON.stringify(draft));
+        }
+
+        function loadDraft() {
+            const draftData = localStorage.getItem('moneyMage_support_draft');
+            if (draftData) {
+                try {
+                    const draft = JSON.parse(draftData);
+                    if (draft.name) draftName.value = draft.name;
+                    if (draft.email) draftEmail.value = draft.email;
+                    if (draft.topic) draftTopic.value = draft.topic;
+                    if (draft.message) draftMessage.value = draft.message;
+                } catch(e) { console.error("Error loading draft data"); }
+            }
+        }
+
+        // Auto-save on input
+        [draftName, draftEmail, draftTopic, draftMessage].forEach(el => {
+            el.addEventListener('input', saveDraft);
+            el.addEventListener('change', saveDraft);
+        });
+
+        // Initialize Page
+        window.onload = () => {
+            lucide.createIcons();
+            loadDraft();
+        };
+
+        // Form Submission Simulation
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             
             // Change button state to loading
             const btn = document.getElementById('submit-btn');
             const originalContent = btn.innerHTML;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Sending...`;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 sm:w-5 sm:h-5 animate-spin"></i> Sending...`;
             lucide.createIcons();
             
             // Simulate network request delay
             setTimeout(() => {
                 successMsg.classList.remove('hidden');
+                successMsg.classList.add('flex');
                 btn.innerHTML = originalContent; // Reset button in background
                 lucide.createIcons();
+                
+                // Clear local storage draft after successful send
+                localStorage.removeItem('moneyMage_support_draft');
             }, 1200);
         });
 
         function resetForm() {
             form.reset();
             successMsg.classList.add('hidden');
+            successMsg.classList.remove('flex');
+            saveDraft(); // Will save the newly blank form over the local storage
         }
     </script>
 </body>
