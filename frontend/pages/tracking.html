@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Money Mage | Monthly Tracking Dashboard</title>
+    
+    <!-- Advanced SEO & Mobile Meta Tags -->
+    <meta name="description" content="Money Mage is a magical personal finance dashboard. Track your monthly income, expenses, set budget limits, and save for goals.">
+    <meta name="keywords" content="finance tracker, expense tracker, budget app, money management, save money">
+    <meta name="theme-color" content="#03010b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta property="og:title" content="Money Mage | Personal Finance Tracker">
+    <meta property="og:description" content="Master your financial destiny with a beautifully crafted dashboard designed for speed, clarity, and a touch of magic.">
+    <meta property="og:type" content="website">
+
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- jsPDF & AutoTable for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #03010b;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Magical Background Animations */
+        @keyframes drift {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -40px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-drift-1 { animation: drift 18s infinite ease-in-out; }
+        .animate-drift-2 { animation: drift 22s infinite ease-in-out reverse; }
+        .animate-drift-3 { animation: drift 20s infinite ease-in-out 3s; }
+        
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Hide calendar icon on webkit month/date inputs */
+        input[type="month"]::-webkit-calendar-picker-indicator,
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+            opacity: 0.6;
+            padding: 5px;
+        }
+
+        /* Mobile Input Optimization */
+        @media (max-width: 768px) {
+            input, select, textarea {
+                font-size: 16px !important; /* Prevents iOS auto-zoom */
+            }
+            .touch-target {
+                min-height: 44px; /* Minimum Apple recommended touch target */
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-100 flex flex-col relative overflow-x-hidden selection:bg-fuchsia-500/30 selection:text-white min-h-screen">
+
+    <!-- --- DYNAMIC BACKGROUND --- -->
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,#0e062e_0%,#03010b_80%)]"></div>
+        <div class="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-cyan-600/10 blur-[120px] animate-drift-1 mix-blend-screen"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-fuchsia-700/10 blur-[150px] animate-drift-2 mix-blend-screen"></div>
+        <div class="absolute top-[20%] left-[40%] w-[40vw] h-[40vw] rounded-full bg-purple-600/10 blur-[100px] animate-drift-3 mix-blend-screen"></div>
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LCAyNTUsIDI1NSwgMC4wNCkiLz48L3N2Zz4=')] [mask-image:radial-gradient(ellipse_at_center,white_10%,transparent_80%)] opacity-80"></div>
+    </div>
+
+    <!-- --- NAVIGATION --- -->
+    <nav class="w-full relative z-20 border-b border-white/5 bg-slate-950/30 backdrop-blur-xl sticky top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2 group hover:opacity-80 transition-opacity touch-target">
+                <i data-lucide="arrow-left" class="w-5 h-5 text-slate-400 group-hover:-translate-x-1 transition-transform"></i>
+                <span class="text-sm font-medium text-slate-300 hidden sm:inline">Back Home</span>
+            </a>
+            <div class="flex items-center gap-2">
+                <i data-lucide="wand-2" class="w-5 h-5 text-fuchsia-400"></i>
+                <span class="text-lg sm:text-xl font-bold tracking-wide text-white">
+                    Money<span class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-cyan-400">Mage</span>
+                </span>
+            </div>
+            <div class="w-16"></div> <!-- Spacer for perfect centering -->
+        </div>
+    </nav>
+
+    <!-- --- MAIN DASHBOARD --- -->
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 relative z-10 flex flex-col gap-6 sm:gap-8">
+        
+        <!-- INFO BANNER -->
+        <div id="info-banner" class="bg-cyan-950/40 border border-cyan-500/30 rounded-2xl p-4 flex items-start sm:items-center justify-between gap-4 backdrop-blur-md">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-cyan-500/20 rounded-lg text-cyan-400 shrink-0"><i data-lucide="save" class="w-5 h-5"></i></div>
+                <div>
+                    <h3 class="font-bold text-cyan-100 text-sm sm:text-base">Auto-Save Enabled</h3>
+                    <p class="text-xs sm:text-sm text-cyan-300/70 font-light">Your data is securely saved in your browser. Also, remember that Total Balance tracks your selected month only. Change months below to see past history!</p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('info-banner').style.display='none'" class="text-cyan-400/50 hover:text-cyan-400 transition-colors p-1 touch-target shrink-0">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- HEADER, MONTH SELECTOR, & EXPORT -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-white mb-1">Your Money Magic</h1>
+                <p class="text-sm sm:text-base text-slate-400 font-light">See where your money goes in simple, easy steps.</p>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-3 z-20">
+                <!-- Month Selector -->
+                <div class="relative w-full sm:w-max">
+                    <input type="month" id="month-selector" onchange="changeMonth(this.value)" class="touch-target w-full sm:w-auto bg-slate-900/80 border border-slate-700 text-white text-sm rounded-xl focus:ring-fuchsia-500 focus:border-fuchsia-500 block py-2.5 pl-4 pr-4 backdrop-blur-md font-bold shadow-lg outline-none transition-colors hover:border-slate-500 [color-scheme:dark]">
+                </div>
+
+                <div class="flex gap-3 w-full sm:w-auto">
+                    <!-- Currency Selector -->
+                    <div class="relative flex-1 sm:flex-none">
+                        <select id="currency-selector" onchange="changeCurrency(this.value)" class="touch-target w-full bg-slate-900/80 border border-slate-700 text-white text-sm rounded-xl focus:ring-fuchsia-500 focus:border-fuchsia-500 block py-2.5 pl-4 pr-10 backdrop-blur-md appearance-none font-bold shadow-lg cursor-pointer outline-none transition-colors hover:border-slate-500">
+                            <option value="₹" selected>₹ Rupee</option>
+                            <option value="$">$ Dollar</option>
+                            <option value="€">€ Euro</option>
+                            <option value="£">£ Pound</option>
+                            <option value="¥">¥ Yen</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+                    </div>
+
+                    <!-- Export PDF Button -->
+                    <button onclick="exportToPDF()" class="touch-target flex-1 sm:flex-none justify-center bg-white/10 hover:bg-white/20 border border-white/10 text-white text-sm font-bold rounded-xl py-2.5 px-4 backdrop-blur-md transition-all flex items-center gap-2 shadow-lg">
+                        <i data-lucide="download" class="w-4 h-4"></i> Export PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUMMARY CARDS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <!-- Total Money (Monthly Balance) -->
+            <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl flex flex-col justify-center">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-slate-400 text-sm font-medium">Total Balance <span id="balance-month-label" class="text-xs font-light block sm:inline">(This Month)</span></h2>
+                    <div class="p-2 bg-purple-500/20 rounded-xl"><i data-lucide="wallet" class="w-5 h-5 text-purple-400"></i></div>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-white truncate" id="total-balance">₹0.00</p>
+                    <p id="balance-date" class="text-xs text-slate-500 mt-1">No transactions</p>
+                </div>
+            </div>
+
+            <!-- Money In (Monthly Income) -->
+            <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl flex flex-col justify-center">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-slate-400 text-sm font-medium">Money In <span id="income-month-label" class="text-xs font-light block sm:inline">(This Month)</span></h2>
+                    <div class="p-2 bg-emerald-500/20 rounded-xl"><i data-lucide="trending-up" class="w-5 h-5 text-emerald-400"></i></div>
+                </div>
+                <p class="text-3xl font-bold text-emerald-400 truncate" id="total-income">+₹0.00</p>
+            </div>
+
+            <!-- Money Out (Monthly Expense) & Limit -->
+            <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="text-slate-400 text-sm font-medium">Money Out <span id="expense-month-label" class="text-xs font-light block sm:inline">(This Month)</span></h2>
+                        <div class="p-2 bg-rose-500/20 rounded-xl"><i data-lucide="trending-down" class="w-5 h-5 text-rose-400"></i></div>
+                    </div>
+                    <p class="text-3xl font-bold text-rose-400 truncate" id="total-expense">-₹0.00</p>
+                </div>
+                
+                <!-- Limit Progress -->
+                <div class="mt-4">
+                    <div class="flex justify-between items-center text-xs text-slate-400 mb-2">
+                        <span id="limit-text" class="truncate pr-2">No limit set</span>
+                        <button onclick="openLimitModal()" class="text-fuchsia-400 hover:text-fuchsia-300 transition-colors flex items-center gap-1 shrink-0 p-1 -mr-1">
+                            <i data-lucide="target" class="w-3 h-3"></i> Set Limit
+                        </button>
+                    </div>
+                    <div class="w-full bg-slate-950/80 rounded-full h-2.5 border border-slate-800 overflow-hidden">
+                        <div id="limit-bar" class="bg-gradient-to-r from-fuchsia-500 to-cyan-400 h-2 rounded-full transition-all duration-1000 w-0"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Savings Goal (Independent) -->
+            <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="text-slate-400 text-sm font-medium">Savings Goal</h2>
+                        <div class="p-2 bg-amber-500/20 rounded-xl"><i data-lucide="star" class="w-5 h-5 text-amber-400"></i></div>
+                    </div>
+                    <p class="text-2xl font-bold text-amber-400 truncate" id="goal-name-display">No Goal Set</p>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="flex justify-between items-center text-xs text-slate-400 mb-2">
+                        <span id="goal-text" class="truncate pr-2">₹0.00 / ₹0.00</span>
+                        <div class="flex gap-2">
+                            <button onclick="openFundGoalModal()" class="text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 shrink-0 p-1" title="Add Money">
+                                <i data-lucide="plus" class="w-3 h-3"></i> Fund
+                            </button>
+                            <button onclick="openGoalModal()" class="text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1 shrink-0 p-1" title="Edit Goal">
+                                <i data-lucide="edit-3" class="w-3 h-3"></i> Edit
+                            </button>
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-950/80 rounded-full h-2.5 border border-slate-800 overflow-hidden">
+                        <div id="goal-bar" class="bg-gradient-to-r from-amber-500 to-orange-400 h-2 rounded-full transition-all duration-1000 w-0"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+            
+            <!-- LEFT COLUMN: ADD MONEY & CHART -->
+            <div class="lg:col-span-1 flex flex-col gap-6 sm:gap-8">
+                
+                <!-- ADD TRANSACTION FORM -->
+                <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl">
+                    <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <i data-lucide="plus-circle" class="w-5 h-5 text-cyan-400"></i>
+                        Add Record
+                    </h2>
+                    
+                    <form id="add-form" class="space-y-4">
+                        <!-- Type Switcher -->
+                        <div class="grid grid-cols-2 gap-2 p-1 bg-slate-950/50 rounded-xl border border-slate-800">
+                            <button type="button" id="btn-expense" class="touch-target py-2 px-4 rounded-lg text-sm font-medium transition-all bg-rose-500/20 text-rose-400" onclick="setType('expense')">
+                                Money Out
+                            </button>
+                            <button type="button" id="btn-income" class="touch-target py-2 px-4 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-slate-200" onclick="setType('income')">
+                                Money In
+                            </button>
+                        </div>
+
+                        <!-- Amount -->
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1 ml-1">How much?</label>
+                            <div class="relative">
+                                <span id="currency-symbol-input" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">₹</span>
+                                <input type="number" id="input-amount" required min="0.01" step="0.01" placeholder="0.00" class="touch-target w-full bg-slate-950/50 border border-slate-800 rounded-xl py-2.5 pl-9 pr-4 text-white focus:outline-none focus:border-cyan-500 transition-colors">
+                            </div>
+                        </div>
+                        
+                        <!-- Date -->
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1 ml-1">When?</label>
+                            <div class="relative">
+                                <i data-lucide="calendar" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                <input type="date" id="input-date" required class="touch-target w-full bg-slate-950/50 border border-slate-800 rounded-xl py-2.5 pl-9 pr-4 text-white focus:outline-none focus:border-cyan-500 transition-colors [color-scheme:dark]">
+                            </div>
+                        </div>
+
+                        <!-- Category -->
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1 ml-1">What for?</label>
+                            <div class="relative">
+                                <i data-lucide="tag" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                <select id="input-category" class="touch-target w-full bg-slate-950/50 border border-slate-800 rounded-xl py-2.5 pl-9 pr-4 text-white focus:outline-none focus:border-cyan-500 transition-colors appearance-none cursor-pointer">
+                                    <!-- Options populated by JS -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1 ml-1">Short Note</label>
+                            <div class="relative">
+                                <i data-lucide="pencil" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                <input type="text" id="input-note" placeholder="e.g. Groceries, Rent..." class="touch-target w-full bg-slate-950/50 border border-slate-800 rounded-xl py-2.5 pl-9 pr-4 text-white focus:outline-none focus:border-cyan-500 transition-colors">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="touch-target w-full py-3 px-4 mt-2 bg-gradient-to-r from-fuchsia-600 to-cyan-600 hover:from-fuchsia-500 hover:to-cyan-500 text-white font-bold rounded-xl shadow-lg transition-transform active:scale-95">
+                            Save It
+                        </button>
+                    </form>
+                </div>
+
+                <!-- CHART -->
+                <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl">
+                    <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="pie-chart" class="w-5 h-5 text-fuchsia-400"></i>
+                        Where Money Went
+                    </h2>
+                    <div class="relative h-64 w-full flex items-center justify-center">
+                        <canvas id="expenseChart"></canvas>
+                        <p id="empty-chart-msg" class="absolute text-slate-500 text-sm">No money out this month.</p>
+                    </div>
+                </div>
+
+                <!-- SMART INSIGHTS -->
+                <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl">
+                    <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="lightbulb" class="w-5 h-5 text-amber-400"></i>
+                        Smart Insights
+                    </h2>
+                    <div id="insights-container" class="space-y-3">
+                        <p class="text-sm text-slate-500">Add records to see insights here.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN: HISTORY -->
+            <div class="lg:col-span-2 flex flex-col">
+                <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl flex-1 flex flex-col h-[600px] lg:h-auto">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i data-lucide="history" class="w-5 h-5 text-purple-400"></i>
+                            <span id="history-title">Recent History</span>
+                        </h2>
+                        <span id="record-count" class="text-xs bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700 shrink-0">0 records</span>
+                    </div>
+
+                    <!-- List Container -->
+                    <div class="flex-1 overflow-y-auto custom-scroll pr-2 space-y-3" id="history-list">
+                        <!-- Items populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- --- MODALS --- -->
+        <!-- Limit Modal -->
+        <div id="limit-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+            <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 w-full max-w-sm shadow-2xl transform scale-95 transition-transform duration-300" id="limit-modal-content">
+                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="target" class="text-fuchsia-400 w-5 h-5"></i> Set Monthly Limit
+                </h3>
+                <label class="block text-sm text-slate-400 mb-2">Max Expense Amount</label>
+                <div class="relative mb-6">
+                    <span id="modal-currency-limit" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">₹</span>
+                    <input type="number" id="modal-limit-input" placeholder="0.00" class="touch-target w-full bg-slate-950/50 border border-slate-800 rounded-xl py-3 pl-9 pr-4 text-white focus:outline-none focus:border-fuchsia-500 transition-colors">
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="closeLimitModal()" class="touch-target flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-colors font-medium">Cancel</button>
+                    <button onclick="saveLimitModal()" class="touch-target flex-1 py-3 px-4 bg-gradient-to-r from-fuchsia-600 to-cyan-600 hover:from-fuchsia-500 hover:to-cyan-500 text-white rounded-xl transition-all font-bold shadow-lg">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Goal Modal (Edit Goal Setup) -->
+        <div id="goal-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+            <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 w-full max-w-sm shadow-2xl transform scale-95 transition-transform duration-300" id="goal-modal-content">
+                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="star" class="text-amber-400 w-5 h-5"></i> Set Savings Goal
+                </h3>
+                <label class="block text-sm text-slate-400 mb-2">What are you saving for?</label>
+                <div class="relative mb-4">
+                    <i data-lucide="crosshair" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                    <input type="text" id="modal-goal-name" placeholder="e.g. New Laptop" class="touch-target w-full bg-slate-950/50 border border-slate-800 rounded-xl py-3 pl-9 pr-4 text-white focus:outline-none focus:border-amber-500 transition-colors">
+                </div>
+                <label class="block text-sm text-slate-400 mb-2">Target Amount</label>
+                <div class="relative mb-6">
+                    <span id="modal-currency-goal" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">₹</span>
+                    <input type="number" id="modal-goal-input" placeholder="0.00" class="touch-target w-full bg-slate-950/50 border border-slate-800 rounded-xl py-3 pl-9 pr-4 text-white focus:outline-none focus:border-amber-500 transition-colors">
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="closeGoalModal()" class="touch-target flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-colors font-medium">Cancel</button>
+                    <button onclick="saveGoalModal()" class="touch-target flex-1 py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-500 text-white rounded-xl transition-all font-bold shadow-lg">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Funds to Goal Modal -->
+        <div id="fund-goal-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+            <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 w-full max-w-sm shadow-2xl transform scale-95 transition-transform duration-300" id="fund-goal-modal-content">
+                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="plus" class="text-emerald-400 w-5 h-5"></i> Add Funds to Goal
+                </h3>
+                <label class="block text-sm text-slate-400 mb-2">Amount to add</label>
+                <div class="relative mb-6">
+                    <span id="modal-currency-fund" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">₹</span>
+                    <input type="number" id="modal-fund-input" placeholder="0.00" class="touch-target w-full bg-slate-950/50 border border-slate-800 rounded-xl py-3 pl-9 pr-4 text-white focus:outline-none focus:border-emerald-500 transition-colors">
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="closeFundGoalModal()" class="touch-target flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-colors font-medium">Cancel</button>
+                    <button onclick="saveFundGoal()" class="touch-target flex-1 py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-xl transition-all font-bold shadow-lg">Add Money</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- --- JAVASCRIPT LOGIC --- -->
+    <script>
+        // --- State & Local Storage Setup ---
+        let currentType = 'expense';
+        let currentCurrency = '₹';
+        let transactions = []; 
+        let monthlyLimits = {}; 
+        let globalGoal = null; 
+        
+        let selectedMonthStr = ''; 
+        
+        // Tracking previous values for the number counting animation
+        let prevInc = 0;
+        let prevExp = 0;
+        let prevBal = 0;
+
+        let chartInstance = null;
+
+        // Expanded Categories
+        const categories = {
+            expense: ['Food & Dining', 'Rent & Bills', 'Shopping', 'Entertainment', 'Transportation', 'Health & Fitness', 'Education', 'Personal Care', 'Travel', 'Other'],
+            income: ['Salary', 'Freelance / Business', 'Investments', 'Gifts', 'Refunds', 'Other']
+        };
+
+        // --- DOM Elements ---
+        const form = document.getElementById('add-form');
+        const btnExpense = document.getElementById('btn-expense');
+        const btnIncome = document.getElementById('btn-income');
+        const inputAmount = document.getElementById('input-amount');
+        const inputDate = document.getElementById('input-date');
+        const inputCategory = document.getElementById('input-category');
+        const inputNote = document.getElementById('input-note');
+        const monthSelector = document.getElementById('month-selector');
+        
+        const elTotalBalance = document.getElementById('total-balance');
+        const elTotalIncome = document.getElementById('total-income');
+        const elTotalExpense = document.getElementById('total-expense');
+        const elBalanceDate = document.getElementById('balance-date');
+        const elHistoryList = document.getElementById('history-list');
+        const elRecordCount = document.getElementById('record-count');
+        const emptyChartMsg = document.getElementById('empty-chart-msg');
+        const historyTitle = document.getElementById('history-title');
+
+        const elLimitText = document.getElementById('limit-text');
+        const elLimitBar = document.getElementById('limit-bar');
+
+        const elGoalNameDisplay = document.getElementById('goal-name-display');
+        const elGoalText = document.getElementById('goal-text');
+        const elGoalBar = document.getElementById('goal-bar');
+
+        // --- Data Persistence ---
+        function loadData() {
+            try {
+                const tx = localStorage.getItem('moneyMage_tx');
+                const lm = localStorage.getItem('moneyMage_limits');
+                const gl = localStorage.getItem('moneyMage_goal');
+                const cur = localStorage.getItem('moneyMage_currency');
+
+                if (tx) transactions = JSON.parse(tx);
+                if (lm) monthlyLimits = JSON.parse(lm);
+                if (gl) globalGoal = JSON.parse(gl);
+                if (cur) {
+                    currentCurrency = cur;
+                    document.getElementById('currency-selector').value = cur;
+                    changeCurrencyUI_Only(cur); // Setup UI strings without triggering a full re-render yet
+                }
+            } catch (e) {
+                console.error("Failed to load local storage data:", e);
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem('moneyMage_tx', JSON.stringify(transactions));
+                localStorage.setItem('moneyMage_limits', JSON.stringify(monthlyLimits));
+                localStorage.setItem('moneyMage_goal', JSON.stringify(globalGoal));
+                localStorage.setItem('moneyMage_currency', currentCurrency);
+            } catch (e) {
+                console.error("Failed to save to local storage:", e);
+            }
+        }
+
+        // --- Init ---
+        function init() {
+            lucide.createIcons();
+            
+            // Load existing data from browser
+            loadData();
+            
+            // Set default date and month
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            
+            inputDate.value = `${yyyy}-${mm}-${dd}`;
+            selectedMonthStr = `${yyyy}-${mm}`;
+            monthSelector.value = selectedMonthStr;
+
+            updateCategoryDropdown();
+            
+            // Initialize labels based on current month
+            const monthName = today.toLocaleString('default', { month: 'long', year: 'numeric' });
+            const shortMonthName = today.toLocaleString('default', { month: 'short', year: 'numeric' });
+            historyTitle.textContent = `${monthName} History`;
+            document.getElementById('income-month-label').textContent = `(${shortMonthName})`;
+            document.getElementById('expense-month-label').textContent = `(${shortMonthName})`;
+            document.getElementById('balance-month-label').textContent = `(${shortMonthName})`;
+
+            // Force 0 render on load to start animation smoothly
+            elTotalBalance.textContent = formatMoney(0);
+            elTotalIncome.textContent = '+' + formatMoney(0);
+            elTotalExpense.textContent = '-' + formatMoney(0);
+            
+            updateUI();
+        }
+
+        // --- Helper functions ---
+        function getFilteredTransactions() {
+            return transactions.filter(t => t.date.startsWith(selectedMonthStr)).sort((a,b) => new Date(b.date) - new Date(a.date));
+        }
+
+        function formatMoney(amount) {
+            return currentCurrency + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Special formatter for PDF to prevent weird unicode bugs with unsupported fonts (Like ¹61000)
+        function getPdfSafeCurrency(currency) {
+            const map = { '₹': 'Rs. ', '€': 'EUR ', '£': 'GBP ', '¥': 'JPY ', '$': '$' };
+            return map[currency] || currency + ' ';
+        }
+
+        function formatMoneyPDF(amount) {
+            return getPdfSafeCurrency(currentCurrency) + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatDateWithOrdinal(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const day = date.getDate();
+            const month = date.toLocaleString('default', { month: 'short' });
+            const year = date.getFullYear();
+
+            const suffix = (day % 10 === 1 && day !== 11) ? 'st' :
+                           (day % 10 === 2 && day !== 12) ? 'nd' :
+                           (day % 10 === 3 && day !== 13) ? 'rd' : 'th';
+
+            return `${day}${suffix} ${month} ${year}`;
+        }
+
+        // --- Handlers ---
+        function changeMonth(newMonth) {
+            if(!newMonth) return;
+            selectedMonthStr = newMonth;
+            
+            const dateObj = new Date(selectedMonthStr + '-01');
+            const monthName = dateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
+            const shortMonthName = dateObj.toLocaleString('default', { month: 'short', year: 'numeric' });
+            
+            historyTitle.textContent = `${monthName} History`;
+            document.getElementById('income-month-label').textContent = `(${shortMonthName})`;
+            document.getElementById('expense-month-label').textContent = `(${shortMonthName})`;
+            document.getElementById('balance-month-label').textContent = `(${shortMonthName})`;
+
+            // Reset animation trackers to 0
+            prevInc = 0;
+            prevExp = 0;
+            prevBal = 0;
+
+            updateUI();
+        }
+
+        function changeCurrencyUI_Only(newCurrency) {
+            document.getElementById('currency-symbol-input').textContent = newCurrency;
+            document.getElementById('modal-currency-limit').textContent = newCurrency;
+            document.getElementById('modal-currency-goal').textContent = newCurrency;
+            document.getElementById('modal-currency-fund').textContent = newCurrency;
+        }
+
+        function changeCurrency(newCurrency) {
+            currentCurrency = newCurrency;
+            changeCurrencyUI_Only(newCurrency);
+            
+            // Re-render UI immediately
+            elTotalIncome.textContent = '+' + formatMoney(prevInc);
+            elTotalExpense.textContent = '-' + formatMoney(prevExp);
+            const balPrefix = prevBal < 0 ? '-' : '';
+            elTotalBalance.textContent = balPrefix + formatMoney(Math.abs(prevBal));
+            
+            updateLimitUI(prevExp); 
+            updateGoalUI();  
+            renderHistory(getFilteredTransactions());
+            renderChart(getFilteredTransactions());
+
+            saveData(); // Save new currency preference
+        }
+
+        function setType(type) {
+            currentType = type;
+            if(type === 'expense') {
+                btnExpense.className = "touch-target py-2 px-4 rounded-lg text-sm font-medium transition-all bg-rose-500/20 text-rose-400";
+                btnIncome.className = "touch-target py-2 px-4 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-slate-200";
+            } else {
+                btnExpense.className = "touch-target py-2 px-4 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-slate-200";
+                btnIncome.className = "touch-target py-2 px-4 rounded-lg text-sm font-medium transition-all bg-emerald-500/20 text-emerald-400";
+            }
+            updateCategoryDropdown();
+        }
+
+        function updateCategoryDropdown() {
+            inputCategory.innerHTML = '';
+            categories[currentType].forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                opt.className = "bg-slate-900 text-white";
+                inputCategory.appendChild(opt);
+            });
+        }
+
+        // --- Modals ---
+        function openLimitModal() {
+            const modal = document.getElementById('limit-modal');
+            const content = document.getElementById('limit-modal-content');
+            document.getElementById('modal-limit-input').value = monthlyLimits[selectedMonthStr] || '';
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeLimitModal() {
+            const modal = document.getElementById('limit-modal');
+            const content = document.getElementById('limit-modal-content');
+            
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function saveLimitModal() {
+            const limitStr = document.getElementById('modal-limit-input').value;
+            if(limitStr.trim() === '') {
+                delete monthlyLimits[selectedMonthStr];
+            } else {
+                const limitNum = parseFloat(limitStr);
+                if(!isNaN(limitNum) && limitNum >= 0) {
+                    monthlyLimits[selectedMonthStr] = limitNum;
+                }
+            }
+            closeLimitModal();
+            updateUI();
+            saveData();
+        }
+
+        function openGoalModal() {
+            const modal = document.getElementById('goal-modal');
+            const content = document.getElementById('goal-modal-content');
+            
+            document.getElementById('modal-goal-name').value = globalGoal ? globalGoal.name : '';
+            document.getElementById('modal-goal-input').value = globalGoal ? globalGoal.target : '';
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeGoalModal() {
+            const modal = document.getElementById('goal-modal');
+            const content = document.getElementById('goal-modal-content');
+            
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function saveGoalModal() {
+            const nameStr = document.getElementById('modal-goal-name').value.trim();
+            const amountStr = document.getElementById('modal-goal-input').value;
+            
+            if(nameStr === '' || amountStr.trim() === '') {
+                globalGoal = null;
+            } else {
+                const amountNum = parseFloat(amountStr);
+                if(!isNaN(amountNum) && amountNum > 0) {
+                    const currentSaved = globalGoal ? globalGoal.saved : 0;
+                    globalGoal = { name: nameStr, target: amountNum, saved: currentSaved };
+                }
+            }
+            closeGoalModal();
+            updateUI();
+            saveData();
+        }
+
+        function openFundGoalModal() {
+            if(!globalGoal) return alert("Please set a savings goal using the Edit button first!");
+            const modal = document.getElementById('fund-goal-modal');
+            const content = document.getElementById('fund-goal-modal-content');
+            document.getElementById('modal-fund-input').value = '';
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeFundGoalModal() {
+            const modal = document.getElementById('fund-goal-modal');
+            const content = document.getElementById('fund-goal-modal-content');
+            
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function saveFundGoal() {
+            const amtStr = document.getElementById('modal-fund-input').value;
+            const amtNum = parseFloat(amtStr);
+            if(!isNaN(amtNum) && amtNum > 0) {
+                globalGoal.saved += amtNum;
+                updateUI();
+                saveData();
+            }
+            closeFundGoalModal();
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const amount = parseFloat(inputAmount.value);
+            if (!amount || amount <= 0) return;
+
+            let txDate = inputDate.value; 
+            if(!txDate) {
+                const today = new Date();
+                txDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            }
+
+            const newTx = {
+                id: Date.now(),
+                type: currentType,
+                amount: amount,
+                category: inputCategory.value,
+                note: inputNote.value || 'No note',
+                date: txDate
+            };
+
+            transactions.push(newTx);
+            
+            const txMonth = txDate.substring(0, 7);
+            if(txMonth !== selectedMonthStr) {
+                monthSelector.value = txMonth;
+                changeMonth(txMonth);
+            } else {
+                updateUI();
+            }
+            
+            inputAmount.value = '';
+            inputNote.value = '';
+            saveData();
+        });
+
+        function deleteTransaction(id) {
+            transactions = transactions.filter(t => t.id !== id);
+            updateUI();
+            saveData();
+        }
+
+        // --- Core Updates ---
+        function updateUI() {
+            const currentTx = getFilteredTransactions();
+            const { inc, exp, bal } = calculateTotals(currentTx);
+            renderHistory(currentTx);
+            renderChart(currentTx);
+            renderInsights(currentTx, inc, exp);
+            updateGoalUI();
+        }
+
+        function animateValue(element, start, end, duration, forcePrefix = null) {
+            if (start === end) {
+                // BUG FIX: If start and end are both 0, force the screen to update to 0!
+                let finalPrefix = forcePrefix !== null ? forcePrefix : (end < 0 ? '-' : '');
+                element.textContent = finalPrefix + formatMoney(Math.abs(end));
+                return;
+            }
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+                const current = start + easeProgress * (end - start);
+                
+                let prefix = forcePrefix !== null ? forcePrefix : (current < 0 ? '-' : '');
+                element.textContent = prefix + formatMoney(Math.abs(current));
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    let finalPrefix = forcePrefix !== null ? forcePrefix : (end < 0 ? '-' : '');
+                    element.textContent = finalPrefix + formatMoney(Math.abs(end));
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        function calculateTotals(currentTx) {
+            // Calculate EVERYTHING based strictly on the currently filtered transactions (Selected Month)
+            let inc = 0, exp = 0;
+            let latestDate = null;
+
+            currentTx.forEach(t => {
+                if (t.type === 'income') inc += t.amount;
+                else exp += t.amount;
+
+                if (!latestDate || new Date(t.date) > new Date(latestDate)) {
+                    latestDate = t.date;
+                }
+            });
+
+            const bal = inc - exp;
+
+            animateValue(elTotalIncome, prevInc, inc, 1000, '+');
+            animateValue(elTotalExpense, prevExp, exp, 1000, '-');
+            animateValue(elTotalBalance, prevBal, bal, 1000, null);
+            
+            elTotalBalance.className = bal < 0 ? "text-3xl font-bold text-rose-400 truncate" : "text-3xl font-bold text-white truncate";
+
+            if(currentTx.length === 0) {
+                elBalanceDate.textContent = "No transactions this month";
+            } else if (latestDate) {
+                elBalanceDate.textContent = `Last entry: ${formatDateWithOrdinal(latestDate)}`;
+            }
+
+            updateLimitUI(exp);
+
+            prevInc = inc;
+            prevExp = exp;
+            prevBal = bal;
+            
+            return { inc, exp, bal };
+        }
+
+        function updateLimitUI(currentExpense) {
+            const limit = monthlyLimits[selectedMonthStr];
+            
+            if(!limit) {
+                elLimitText.textContent = "No limit set";
+                elLimitBar.style.width = "0%";
+                elLimitBar.className = "bg-slate-700 h-2 rounded-full transition-all duration-1000 w-0";
+                return;
+            }
+
+            elLimitText.textContent = `${formatMoney(currentExpense)} / ${formatMoney(limit)}`;
+            
+            let percentage = (currentExpense / limit) * 100;
+            if(percentage > 100) percentage = 100;
+            
+            elLimitBar.style.width = `${percentage}%`;
+            
+            if(currentExpense > limit) {
+                elLimitBar.className = "bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)] h-2 rounded-full transition-all duration-1000";
+                elLimitText.classList.add('text-rose-400');
+            } else if (percentage > 80) {
+                elLimitBar.className = "bg-amber-500 h-2 rounded-full transition-all duration-1000";
+                elLimitText.classList.remove('text-rose-400');
+            } else {
+                elLimitBar.className = "bg-gradient-to-r from-fuchsia-500 to-cyan-400 h-2 rounded-full transition-all duration-1000";
+                elLimitText.classList.remove('text-rose-400');
+            }
+        }
+
+        function updateGoalUI() {
+            if(!globalGoal) {
+                elGoalNameDisplay.textContent = "No Goal Set";
+                elGoalText.textContent = formatMoney(0) + " / " + formatMoney(0);
+                elGoalBar.style.width = "0%";
+                elGoalBar.className = "bg-slate-700 h-2 rounded-full transition-all duration-1000";
+                return;
+            }
+
+            elGoalNameDisplay.textContent = globalGoal.name;
+            elGoalText.textContent = `${formatMoney(globalGoal.saved)} / ${formatMoney(globalGoal.target)}`;
+            
+            let percentage = (globalGoal.saved / globalGoal.target) * 100;
+            if(percentage > 100) percentage = 100;
+            
+            elGoalBar.style.width = `${percentage}%`;
+            
+            if(percentage >= 100) {
+                elGoalBar.className = "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] h-2 rounded-full transition-all duration-1000";
+            } else {
+                elGoalBar.className = "bg-gradient-to-r from-amber-500 to-orange-400 h-2 rounded-full transition-all duration-1000 relative";
+            }
+        }
+
+        function renderInsights(currentTx, inc, exp) {
+            const container = document.getElementById('insights-container');
+            container.innerHTML = '';
+            let insights = [];
+
+            if (currentTx.length === 0) {
+                container.innerHTML = `<p class="text-sm text-slate-500">Add records to see insights here.</p>`;
+                return;
+            }
+
+            if (exp > inc && inc > 0) {
+                insights.push({ icon: 'alert-triangle', color: 'text-rose-400', bg: 'bg-rose-500/20', text: `You've spent <b>${formatMoney(exp - inc)}</b> more than you've earned this month.` });
+            } else if (inc > exp && exp > 0) {
+                const saveRate = ((inc - exp) / inc * 100).toFixed(0);
+                insights.push({ icon: 'thumbs-up', color: 'text-emerald-400', bg: 'bg-emerald-500/20', text: `Great job! You are saving <b>${saveRate}%</b> of your income.` });
+            }
+
+            const expenses = currentTx.filter(t => t.type === 'expense');
+            if (expenses.length > 0) {
+                const dataMap = {};
+                expenses.forEach(t => { dataMap[t.category] = (dataMap[t.category] || 0) + t.amount; });
+                const topCat = Object.keys(dataMap).reduce((a, b) => dataMap[a] > dataMap[b] ? a : b);
+                insights.push({ icon: 'pie-chart', color: 'text-fuchsia-400', bg: 'bg-fuchsia-500/20', text: `Your highest expense is <b>${topCat}</b> (${formatMoney(dataMap[topCat])}).` });
+            }
+
+            const limit = monthlyLimits[selectedMonthStr];
+            if (limit) {
+                const pct = (exp / limit) * 100;
+                if (pct >= 100) {
+                    insights.push({ icon: 'alert-circle', color: 'text-rose-400', bg: 'bg-rose-500/20', text: `You have <b>exceeded</b> your monthly budget limit!` });
+                } else if (pct >= 80) {
+                    insights.push({ icon: 'bell', color: 'text-amber-400', bg: 'bg-amber-500/20', text: `Careful! You've used <b>${pct.toFixed(0)}%</b> of your monthly budget.` });
+                }
+            }
+
+            if (globalGoal && globalGoal.saved >= globalGoal.target) {
+                insights.push({ icon: 'star', color: 'text-amber-400', bg: 'bg-amber-500/20', text: `Congratulations! You've achieved your savings goal for the <b>${globalGoal.name}</b>!` });
+            }
+
+            if (insights.length === 0) {
+                container.innerHTML = `<p class="text-sm text-slate-500">Keep tracking to unlock more insights!</p>`;
+                return;
+            }
+
+            insights.forEach(ins => {
+                const div = document.createElement('div');
+                div.className = 'flex items-start gap-3 bg-slate-950/40 p-3 rounded-xl border border-slate-800/50';
+                div.innerHTML = `
+                    <div class="p-2 rounded-lg ${ins.bg} ${ins.color} shrink-0 mt-0.5">
+                        <i data-lucide="${ins.icon}" class="w-4 h-4"></i>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed">${ins.text}</p>
+                `;
+                container.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        function renderHistory(currentTx) {
+            elHistoryList.innerHTML = '';
+            elRecordCount.textContent = `${currentTx.length} records`;
+
+            if (currentTx.length === 0) {
+                elHistoryList.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-slate-500 space-y-3 opacity-60 mt-10">
+                        <i data-lucide="ghost" class="w-12 h-12"></i>
+                        <p>No records for this month yet.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            currentTx.forEach(t => {
+                const isInc = t.type === 'income';
+                const colorClass = isInc ? 'text-emerald-400' : 'text-rose-400';
+                const bgClass = isInc ? 'bg-emerald-500/10' : 'bg-rose-500/10';
+                const sign = isInc ? '+' : '-';
+                const icon = isInc ? 'trending-up' : 'trending-down';
+                const dateStr = formatDateWithOrdinal(t.date);
+
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between p-3 sm:p-4 bg-slate-950/40 rounded-2xl border border-slate-800/50 hover:border-slate-700 transition-colors group";
+                
+                item.innerHTML = `
+                    <div class="flex items-center gap-3 sm:gap-4 overflow-hidden">
+                        <div class="p-2 sm:p-3 rounded-xl ${bgClass} ${colorClass} shrink-0">
+                            <i data-lucide="${icon}" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                        </div>
+                        <div class="truncate">
+                            <p class="font-bold text-slate-200 text-sm sm:text-base truncate">${t.note}</p>
+                            <p class="text-xs text-slate-500 mt-0.5 truncate">${dateStr} • ${t.category}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 sm:gap-4 shrink-0 ml-2">
+                        <span class="font-bold ${colorClass} text-sm sm:text-base">${sign}${formatMoney(t.amount)}</span>
+                        <button onclick="deleteTransaction(${t.id})" class="touch-target p-2 text-slate-600 hover:text-rose-400 hover:bg-rose-500/20 rounded-lg transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+                elHistoryList.appendChild(item);
+            });
+
+            lucide.createIcons();
+        }
+
+        function renderChart(currentTx) {
+            const expenses = currentTx.filter(t => t.type === 'expense');
+            
+            if (expenses.length === 0) {
+                if(chartInstance) {
+                    chartInstance.destroy();
+                    chartInstance = null;
+                }
+                emptyChartMsg.classList.remove('hidden');
+                return;
+            }
+            
+            emptyChartMsg.classList.add('hidden');
+
+            const dataMap = {};
+            expenses.forEach(t => {
+                dataMap[t.category] = (dataMap[t.category] || 0) + t.amount;
+            });
+
+            const labels = Object.keys(dataMap);
+            const dataValues = Object.values(dataMap);
+
+            const bgColors = [
+                'rgba(217, 70, 239, 0.8)', // Fuchsia
+                'rgba(6, 182, 212, 0.8)',  // Cyan
+                'rgba(168, 85, 247, 0.8)', // Purple
+                'rgba(245, 158, 11, 0.8)', // Amber
+                'rgba(16, 185, 129, 0.8)', // Emerald
+                'rgba(244, 63, 94, 0.8)',  // Rose
+                'rgba(99, 102, 241, 0.8)', // Indigo
+                'rgba(163, 230, 53, 0.8)'  // Lime
+            ];
+
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+            
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.font.family = "'Outfit', sans-serif";
+
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: bgColors.slice(0, labels.length),
+                        borderColor: '#0f172a',
+                        borderWidth: 4,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { padding: 15, usePointStyle: true, pointStyle: 'circle' } },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleFont: { size: 14, family: "'Outfit', sans-serif" },
+                            bodyFont: { size: 14, family: "'Outfit', sans-serif", weight: 'bold' },
+                            padding: 12,
+                            cornerRadius: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + currentCurrency + context.raw.toLocaleString('en-US', { minimumFractionDigits: 2 });
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // --- Advanced PDF Export Logic ---
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const currentTx = getFilteredTransactions();
+            const dateObj = new Date(selectedMonthStr + '-01');
+            const monthName = dateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+            // Magical Theme Colors for PDF
+            const primaryColor = [168, 85, 247]; // Purple
+            const darkBg = [15, 23, 42]; // Slate 900
+            const textDark = [40, 40, 40];
+            const textLight = [100, 100, 100];
+            const incomeColor = [16, 185, 129]; // Emerald
+            const expenseColor = [244, 63, 94]; // Rose
+
+            // Header Background
+            doc.setFillColor(...darkBg);
+            doc.rect(0, 0, 210, 40, 'F');
+
+            // Header Title
+            doc.setFontSize(24);
+            doc.setTextColor(255, 255, 255);
+            doc.text(`Money Mage | Financial Statement`, 14, 22);
+            
+            doc.setFontSize(12);
+            doc.setTextColor(200, 200, 200);
+            doc.text(`Monthly Record for ${monthName}`, 14, 30);
+
+            // Add generation date
+            doc.setFontSize(10);
+            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 150, 30);
+
+            let currentY = 52;
+
+            // --- Section 1: Monthly Overview ---
+            doc.setTextColor(...textDark);
+            doc.setFontSize(16);
+            doc.setFont(undefined, 'bold');
+            doc.text('1. Monthly Overview', 14, currentY);
+            currentY += 10;
+            
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            
+            doc.setTextColor(...textLight);
+            doc.text('Total Balance (This Month):', 14, currentY);
+            doc.setTextColor(...textDark);
+            doc.setFont(undefined, 'bold');
+            doc.text(`${formatMoneyPDF(prevBal)}`, 65, currentY);
+            currentY += 8;
+
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(...textLight);
+            doc.text('Money In:', 14, currentY);
+            doc.setTextColor(...incomeColor);
+            doc.setFont(undefined, 'bold');
+            doc.text(`+${formatMoneyPDF(prevInc)}`, 65, currentY);
+            currentY += 8;
+
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(...textLight);
+            doc.text('Money Out:', 14, currentY);
+            doc.setTextColor(...expenseColor);
+            doc.setFont(undefined, 'bold');
+            doc.text(`-${formatMoneyPDF(prevExp)}`, 65, currentY);
+            currentY += 8;
+
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(...textLight);
+            if (monthlyLimits[selectedMonthStr]) {
+                doc.text(`Expense Limit:`, 14, currentY);
+                doc.setTextColor(...textDark);
+                doc.setFont(undefined, 'bold');
+                doc.text(`${formatMoneyPDF(monthlyLimits[selectedMonthStr])}`, 65, currentY);
+                currentY += 8;
+            }
+
+            if (globalGoal) {
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(...textLight);
+                doc.text(`Savings Goal (${globalGoal.name}):`, 14, currentY);
+                doc.setTextColor(...textDark);
+                doc.setFont(undefined, 'bold');
+                doc.text(`${formatMoneyPDF(globalGoal.saved)} / ${formatMoneyPDF(globalGoal.target)}`, 65, currentY);
+                currentY += 12;
+            } else {
+                currentY += 5;
+            }
+
+            // --- Section 2: Expense Category Breakdown ---
+            const expenses = currentTx.filter(t => t.type === 'expense');
+            if (expenses.length > 0) {
+                doc.setTextColor(...textDark);
+                doc.setFontSize(16);
+                doc.setFont(undefined, 'bold');
+                doc.text('2. Category Breakdown', 14, currentY);
+                currentY += 6;
+
+                const categoryTotals = {};
+                expenses.forEach(t => { categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount; });
+                
+                const catTableData = Object.entries(categoryTotals)
+                    .sort((a,b) => b[1] - a[1]) // Sort highest to lowest
+                    .map(([cat, amt]) => [cat, formatMoneyPDF(amt)]);
+
+                doc.autoTable({
+                    startY: currentY,
+                    head: [['Expense Category', 'Total Amount']],
+                    body: catTableData,
+                    theme: 'grid',
+                    margin: { left: 14, right: 100 }, // Keep it on the left side
+                    headStyles: { fillColor: [71, 85, 105], textColor: 255 }, 
+                    styles: { font: 'helvetica', fontSize: 10, cellPadding: 3 },
+                    columnStyles: { 1: { halign: 'right', fontStyle: 'bold' } }
+                });
+                
+                currentY = doc.lastAutoTable.finalY + 12;
+            } else {
+                 doc.setTextColor(...textDark);
+                 doc.setFontSize(16);
+                 doc.setFont(undefined, 'bold');
+                 doc.text('2. Category Breakdown', 14, currentY);
+                 currentY += 8;
+                 doc.setFontSize(11);
+                 doc.setFont(undefined, 'normal');
+                 doc.setTextColor(...textLight);
+                 doc.text("No expenses recorded.", 14, currentY);
+                 currentY += 12;
+            }
+
+
+            // --- Section 3: Smart Insights ---
+            const insightsElements = document.querySelectorAll('#insights-container p.text-slate-300');
+            if(insightsElements.length > 0) {
+                doc.setTextColor(...textDark);
+                doc.setFontSize(16);
+                doc.setFont(undefined, 'bold');
+                doc.text('3. Smart Insights', 14, currentY);
+                currentY += 8;
+
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(...textLight);
+                insightsElements.forEach(el => {
+                    const rawText = el.innerHTML.replace(/<\/?[^>]+(>|$)/g, "");
+                    let safeText = rawText.replace(/₹/g, 'Rs. ');
+                    const textLines = doc.splitTextToSize("• " + safeText, 180);
+                    
+                    if (currentY + (textLines.length * 6) > 280) {
+                        doc.addPage();
+                        currentY = 20;
+                    }
+                    
+                    doc.text(textLines, 14, currentY);
+                    currentY += (textLines.length * 6) + 2;
+                });
+                currentY += 10;
+            }
+
+            // --- Section 4: Transaction History ---
+            if (currentY > 240) {
+                doc.addPage();
+                currentY = 20;
+            }
+
+            doc.setTextColor(...textDark);
+            doc.setFontSize(16);
+            doc.setFont(undefined, 'bold');
+            doc.text('4. Detailed Transaction History', 14, currentY);
+            currentY += 6;
+
+            if(currentTx.length === 0) {
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'normal');
+                doc.text(`No transactions recorded for ${monthName}.`, 14, currentY + 5);
+            } else {
+                const tableBody = currentTx.map(t => [
+                    formatDateWithOrdinal(t.date),
+                    t.type === 'income' ? 'Income' : 'Expense',
+                    t.category,
+                    t.note,
+                    (t.type === 'income' ? '+' : '-') + formatMoneyPDF(t.amount)
+                ]);
+
+                doc.autoTable({
+                    startY: currentY,
+                    head: [['Date', 'Type', 'Category', 'Note', 'Amount']],
+                    body: tableBody,
+                    theme: 'grid',
+                    margin: { left: 14, right: 14 },
+                    headStyles: { fillColor: primaryColor, textColor: 255, fontStyle: 'bold' }, 
+                    alternateRowStyles: { fillColor: [248, 250, 252] },
+                    styles: { font: 'helvetica', fontSize: 10, cellPadding: 5 },
+                    columnStyles: {
+                        0: { cellWidth: 32 },
+                        1: { cellWidth: 22 },
+                        2: { cellWidth: 38 },
+                        3: { cellWidth: 'auto' }, 
+                        4: { cellWidth: 40, halign: 'right', fontStyle: 'bold' }
+                    },
+                    didParseCell: function(data) {
+                        if (data.section === 'body' && data.column.index === 4) {
+                            if (data.cell.raw.startsWith('+')) {
+                                data.cell.styles.textColor = incomeColor;
+                            } else if (data.cell.raw.startsWith('-')) {
+                                data.cell.styles.textColor = expenseColor;
+                            }
+                        }
+                    }
+                });
+            }
+
+            // --- Add Footer ---
+            const pageCount = doc.internal.getNumberOfPages();
+            for(let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(9);
+                doc.setTextColor(150, 150, 150);
+                
+                doc.setDrawColor(200, 200, 200);
+                doc.line(14, 285, 196, 285);
+                
+                doc.text(`Generated by Money Mage Tracker - Page ${i} of ${pageCount}`, 105, 292, {align: 'center'});
+            }
+
+            // Save
+            doc.save(`MoneyMage_Statement_${selectedMonthStr}.pdf`);
+        }
+
+        // Start App
+        init();
+
+    </script>
+</body>
+</html>
